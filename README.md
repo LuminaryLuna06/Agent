@@ -4,14 +4,14 @@ A modular, token-budgeted AI agent with persistent SQLite memory and tick loggin
 
 ## Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| **Python 3.10+** | Runtime environment |
-| **SQLAlchemy 2.0** | ORM & database modeling (`sqlite3`) |
-| **Pydantic v2** | Hyperparameter schema & payload validation |
-| **tiktoken** | Token calculation (`cl100k_base` with heuristic fallback) |
-| **Requests / python-dotenv** | HTTP transport & environment variables |
-| **OpenAI-Compatible LLM** | Backend inference server (e.g., Llama.cpp / vLLM) |
+| Technology                   | Purpose                                                   |
+| ---------------------------- | --------------------------------------------------------- |
+| **Python 3.10+**             | Runtime environment                                       |
+| **SQLAlchemy 2.0**           | ORM & database modeling (`sqlite3`)                       |
+| **Pydantic v2**              | Hyperparameter schema & payload validation                |
+| **tiktoken**                 | Token calculation (`cl100k_base` with heuristic fallback) |
+| **Requests / python-dotenv** | HTTP transport & environment variables                    |
+| **OpenAI-Compatible LLM**    | Backend inference server (e.g., Llama.cpp / vLLM)         |
 
 ---
 
@@ -19,6 +19,8 @@ A modular, token-budgeted AI agent with persistent SQLite memory and tick loggin
 
 ```text
 Agent
+├── docs/
+│   └── test_plan.md          # Architecture & testing roadmap
 ├── src/
 │   ├── __init__.py           # Unified package exports
 │   ├── agent/
@@ -44,13 +46,23 @@ Agent
 │       ├── __init__.py
 │       ├── budget.py         # Dynamic budgeting & newest-first window fitting
 │       └── counter.py        # Token counting logic
-│
-├── docs/
-│   └── test_plan.md          # Architecture & testing roadmap
+├── tests/
+│   ├── conftest.py           # Shared fixtures & isolated in-memory test DB
+│   ├── e2e/
+│   │   └── test_agent_turn.py# End-to-end conversation flow tests
+│   ├── integration/
+│   │   ├── test_db.py        # Database persistence integration tests
+│   │   └── test_llm.py       # LLM client HTTP & mock inference tests
+│   └── unit/
+│       ├── test_config.py    # Environment settings validation tests
+│       ├── test_prompts.py   # Prompt assembly & token limit tests
+│       └── test_tokens.py    # Token counter & dynamic budget tests
+├── .env                      # Environment configuration (LLAMA_URL)
 ├── main.ipynb                # Interactive exploration notebook
 ├── main.py                   # Terminal chat runner
-├── test.db                   # Local SQLite database
-└── .env                      # Environment configuration (LLAMA_URL)
+├── pytest.ini                # Pytest configuration settings
+├── README.md                 # Project documentation
+└── test.db                   # Local SQLite database
 ```
 
 ---
@@ -58,17 +70,20 @@ Agent
 ## Quick Start
 
 1. **Install Dependencies**:
+
    ```bash
    uv pip install sqlalchemy pydantic tiktoken requests python-dotenv
    ```
 
 2. **Configure Environment**:
    Create a `.env` file:
+
    ```env
    LLAMA_URL=http://localhost:8080/v1
    ```
 
 3. **Run**:
+
    ```python
    from src import SessionLocal, ShorekeeperAgent
 
@@ -76,4 +91,16 @@ Agent
        agent = ShorekeeperAgent(db=db)
        reply = agent.step("Hello Shorekeeper")
        print(reply)
+   ```
+
+4. **Test**:
+
+   ```bash
+   pytest
+   ```
+
+   or
+
+   ```bash
+   pytest -v > test_run.log
    ```
