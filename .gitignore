@@ -194,3 +194,19 @@ pyrightconfig.json
 *.wps
 
 # End of https://www.toptal.com/developers/gitignore/api/python,text,database
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+### Editors & IDEs ###
+.vscode/
+.idea/
+*.swp
+*.swo
+
+### Agent Skills & Assistant Tooling ###
+.agents/
+skills-lock.json
