@@ -210,3 +210,13 @@ pyrightconfig.json
 ### Agent Skills & Assistant Tooling ###
 .agents/
 skills-lock.json
+
+### Vector Database (ChromaDB) ###
+chroma/
+.chroma/
+chroma_db/
+chromadb/
+*.parquet
+
+.obsidian/
+obsidian/

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.config.settings import CONTEXT_WINDOW
-from src.db.repository import get_recent_messages, log_tick, save_message
+from src.db.repository import get_recent_messages, log_tick, save_message, update_state
 from src.llm.client import llm_call
 from src.llm.config import LLMConfig
 from src.prompts.builder import build_message, build_system_prompt
@@ -70,5 +70,6 @@ class ShorekeeperAgent:
                 thinking=reasoning,
                 params=self.config,
             )
+            update_state(db=self.db, state="last_message_ts", value=user_record.ts)
 
         return response

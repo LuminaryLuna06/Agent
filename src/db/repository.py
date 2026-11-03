@@ -1,9 +1,10 @@
 from sqlite3 import OperationalError
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from src.db.models import Message, TickLog
+from src.db.models import Message, StateField, TickLog
 from src.llm.config import LLMConfig
 
 
@@ -63,6 +64,28 @@ def log_tick(
         db.commit()
         db.refresh(db_tick)
         return db_tick
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        print("Error occured:", e)
+        return None
+
+
+def update_state(
+    db: Session,
+    state: str,
+    value: Any,
+) -> StateField | None:
+    """Updates or inserts a state field in the database."""
+    try:
+        db_state = db.get(StateField, state)
+        if db_state:
+            db_state.value = value
+        else:
+            db_state = StateField(key=state, value=value)
+            db.add(db_state)
+        db.commit()
+        db.refresh(db_state)
+        return db_state
     except Exception as e:  # noqa: BLE001
         db.rollback()
         print("Error occured:", e)

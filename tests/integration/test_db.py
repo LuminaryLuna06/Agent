@@ -4,7 +4,12 @@ from unittest.mock import MagicMock
 from sqlalchemy import select
 
 from src.db.models import Message, TickLog
-from src.db.repository import get_recent_messages, log_tick, save_message
+from src.db.repository import (
+    get_recent_messages,
+    log_tick,
+    save_message,
+    update_state,
+)
 
 
 class TestSaveMessage:
@@ -139,4 +144,33 @@ class TestLogTick:
             output="Test",
         )
 
+        assert result is None
+
+
+class TestUpdateState:
+    def test_update_state_insert_and_update(self, in_memory_db):
+        """Verifies state records can be inserted and subsequently updated."""
+        # Insert
+        state1 = update_state(
+            db=in_memory_db, state="last_message_ts", value="1730000000.0"
+        )
+        assert state1 is not None
+        assert state1.key == "last_message_ts"
+        assert state1.value == "1730000000.0"
+        assert isinstance(state1.updated_at, float)
+
+        # Update
+        state2 = update_state(
+            db=in_memory_db, state="last_message_ts", value="1730000100.0"
+        )
+        assert state2 is not None
+        assert state2.key == "last_message_ts"
+        assert state2.value == "1730000100.0"
+
+    def test_update_state_rollback_on_failure(self, in_memory_db, monkeypatch):
+        """Verifies failure on commit triggers rollback and returns None."""
+        monkeypatch.setattr(
+            in_memory_db, "commit", MagicMock(side_effect=Exception("DB Error"))
+        )
+        result = update_state(db=in_memory_db, state="key", value="val")
         assert result is None

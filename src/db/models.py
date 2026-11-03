@@ -1,6 +1,6 @@
 import time
 
-from sqlalchemy import DATETIME, Column, Float, Integer, String, Text
+from sqlalchemy import Float, Integer, String, Text
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -21,7 +21,9 @@ class StateField(Base):
     __tablename__ = "state"
     key: Mapped[str] = mapped_column(String(64), primary_key=True)
     value: Mapped[str] = mapped_column(Text)
-    updated_at = Column(DATETIME)
+    updated_at: Mapped[float] = mapped_column(
+        Float, default=time.time, onupdate=time.time
+    )
 
 
 class TickLog(Base):
